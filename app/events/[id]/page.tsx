@@ -1,4 +1,4 @@
-import { CloudCog } from "lucide-react";
+import RegisterAttendeeForm from "@/components/forms/RegisterAttendeeForm";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -15,7 +15,6 @@ async function getEvent(id: string) {
 export default async function EventDetailsPage({params}: PageProps) {
     const { id } = await params;
     const event = await getEvent(id);
-    console.log(event)
     
 
   return (
@@ -37,6 +36,11 @@ export default async function EventDetailsPage({params}: PageProps) {
             ))}
           </ul>
         )}
+      </div>
+
+      <div className="border-t pt-4">
+        <h2 className="text-lg font-medium mb-2">Register Attendee</h2>
+        <RegisterAttendeeForm eventId={event.id} />
       </div>
     </div>
   );
