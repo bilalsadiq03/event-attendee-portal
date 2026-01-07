@@ -21,6 +21,8 @@ export default function EventDetailsPage({params}: PageProps) {
 
     if (isLoading) return <EventDetailsSkeleton />;
     if (isError) return <ErrorState message="Event not found" />;
+
+    const attendees = data?.attendees ?? [];
     
 
   return (
@@ -45,8 +47,13 @@ export default function EventDetailsPage({params}: PageProps) {
       </div>
 
       <div className="border-t pt-4">
-        <h2 className="text-lg font-medium mb-2">Register Attendee</h2>
-        <RegisterAttendeeForm eventId={data.id} />
+        {attendees.length == data.capacity ? (
+          <p className="text-red-500 font-medium">
+            Event capacity reached. No more registrations allowed.
+          </p>
+        ) : (
+          <RegisterAttendeeForm eventId={data.id} />
+        )}
       </div>
     </div>
   );
