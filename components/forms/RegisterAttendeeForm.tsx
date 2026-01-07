@@ -22,12 +22,37 @@ export default function RegisterAttendeeForm({
 
   const mutation = useMutation({
     mutationFn: registerAttendee,
+
+    onMutate: async (newAttendee) => {
+      await queryClient.cancelQueries({ queryKey: ["event", eventId] });
+
+      const previousEvent = queryClient.getQueryData(["event", eventId]);
+
+      queryClient.setQueryData(["event", eventId], (old: any) => ({
+        ...old,
+        attendees: [
+          ...old.attendees,
+          { id: "temp-id", ...newAttendee },
+        ],
+      }));
+
+      return { previousEvent };
+    },
+
+    onError: (_err, _newAttendee, context) => {
+      queryClient.setQueryData(["event", eventId], context?.previousEvent);
+      toast.error("Failed to register attendee");
+    },
+
     onSuccess: () => {
+      toast.success("Attendee registered successfully");
+    },
+
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["event", eventId] });
       reset();
-      
     },
-});
+  });
 
   const {
     register,
@@ -40,8 +65,6 @@ export default function RegisterAttendeeForm({
 
   const onSubmit = async (data: AttendeeFormData) => {
     mutation.mutate({ ...data, eventId });
-    reset();
-    toast.success("Attendee registered successfully!")
   };
 
   return (

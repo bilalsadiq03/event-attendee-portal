@@ -7,7 +7,6 @@ import { eventSchema, EventFormData } from "@/lib/validators/event.schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
-import { useState } from "react";
 import { toast } from "sonner";
 import { redirect } from "next/navigation";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
@@ -20,9 +19,37 @@ export default function CreateEventForm () {
 
     const mutation = useMutation({
         mutationFn: createEvent,
+
+        onMutate: async(newEvent) => {
+            await queryClient.cancelQueries({ queryKey: ["events"]})
+            const previousEvents = queryClient.getQueryData(["events"])
+
+            queryClient.setQueryData(["events"], (old: any[] = []) => [
+                {
+                    id: "temp_id",
+                    ...newEvent,
+                    attendees: [],
+                    createdAt: new Date().toISOString(),
+                },
+                ...old,
+            ]);
+
+            return { previousEvents };
+        },
+
+        onError: (_err, _newEvent, context) => {
+            queryClient.setQueryData(["events"], context?.previousEvents)
+            toast.error("Failed to create event");
+        },
+
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["events"] });
+            toast.success("Event created successfully!");
             reset();
+        },
+
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["events"] })
+             reset();
         },
     });
 
@@ -37,8 +64,6 @@ export default function CreateEventForm () {
 
     const onSubmit = (data: EventFormData) => {
         mutation.mutate({ ...data, capacity: Number(data.capacity) })
-        toast.success("Event created successfully!");
-        reset();
         redirect("/events")
     };
 
