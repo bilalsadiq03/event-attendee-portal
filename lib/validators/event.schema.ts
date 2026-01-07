@@ -6,7 +6,7 @@ export const eventSchema = z.object({
     date: z.string().refine((val) => !isNaN(Date.parse(val)),{
         message: "Invalid date",
     }),
-    capacity: z.number({ invalid_type_error: "Capacity is required"}).min(1, "Capacity must be atleast 1"),
+    capacity: z.coerce.number().min(1, "Capacity must be atleast 1"),
 });
 
 export type EventFormData = z.infer<typeof eventSchema>
