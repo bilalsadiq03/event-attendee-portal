@@ -58,7 +58,7 @@ export default function CreateEventForm () {
         handleSubmit,
         formState: { errors },
         reset
-    } = useForm<EventFormData>({
+    } = useForm({
         resolver: zodResolver(eventSchema)
     })
 
