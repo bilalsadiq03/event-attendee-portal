@@ -8,14 +8,26 @@ import {
 } from "@/lib/validators/attendee.schema";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { registerAttendee } from "@/lib/api";
+import { toast } from "sonner";
 
 export default function RegisterAttendeeForm({
   eventId,
 }: {
   eventId: string;
 }) {
-  const [loading, setLoading] = useState(false);
+  
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: registerAttendee,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["event", eventId] });
+      reset();
+      
+    },
+});
 
   const {
     register,
@@ -27,14 +39,9 @@ export default function RegisterAttendeeForm({
   });
 
   const onSubmit = async (data: AttendeeFormData) => {
-    setLoading(true);
-    await fetch("/api/attendees", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...data, eventId }),
-    });
-    setLoading(false);
+    mutation.mutate({ ...data, eventId });
     reset();
+    toast.success("Attendee registered successfully!")
   };
 
   return (
@@ -49,8 +56,8 @@ export default function RegisterAttendeeForm({
         <p className="text-sm text-red-500">{errors.email.message}</p>
       )}
 
-      <Button type="submit" disabled={loading}>
-        {loading ? "Registering..." : "Register Attendee"}
+      <Button type="submit" disabled={mutation.isPending}>
+        {mutation.isPending ? "Registering..." : "Register Attendee"}
       </Button>
     </form>
   );

@@ -10,10 +10,21 @@ import { Textarea } from "../ui/textarea";
 import { useState } from "react";
 import { toast } from "sonner";
 import { redirect } from "next/navigation";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { createEvent } from "@/lib/api";
 
 
 export default function CreateEventForm () {
-    const [loading, setLoading] = useState(false);
+
+    const queryClient = useQueryClient();
+
+    const mutation = useMutation({
+        mutationFn: createEvent,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["events"] });
+            reset();
+        },
+    });
 
     const {
         register,
@@ -24,18 +35,9 @@ export default function CreateEventForm () {
         resolver: zodResolver(eventSchema)
     })
 
-    const onSubmit = async (data: EventFormData) => {
-        setLoading(true);
-        await fetch("/api/events",{
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                ...data,
-                capacity: Number(data.capacity)
-            }),
-        });
+    const onSubmit = (data: EventFormData) => {
+        mutation.mutate({ ...data, capacity: Number(data.capacity) })
         toast.success("Event created successfully!");
-        setLoading(false);
         reset();
         redirect("/events")
     };
@@ -79,8 +81,8 @@ export default function CreateEventForm () {
                 )}
             </div>
 
-            <Button type="submit" disabled={loading}>
-                {loading ? "Creating..." : "Create Event"}
+            <Button type="submit" disabled={mutation.isPending}>
+                {mutation.isPending ? "Creating..." : "Create Event"}
             </Button>
 
         </form>

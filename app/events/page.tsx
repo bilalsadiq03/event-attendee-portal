@@ -1,22 +1,25 @@
+"use client"
+
 import EventCard from "@/components/events/EventCard";
+import { fetchEvents } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
 
-async function getEvents() {
-  const res = await fetch("http://localhost:3000/api/events", {
-    cache: "no-store",
-  });
-  return res.json();
-}
 
-export default async function EventsPage() {
-  const events = await getEvents();
+export default function EventsPage() {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['events'],
+    queryFn: fetchEvents
+  })
 
-  if (events.length === 0) {
+  if (isLoading) return <p>Loading events...</p>;
+  if (isError) return <p>Failed to load events</p>;
+  if (data?.length === 0) {
     return <p className="text-muted-foreground">No events created yet.</p>;
   }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {events.map((event: any) => (
+      {data.map((event: any) => (
         <EventCard key={event.id} event={event} />
       ))}
     </div>
