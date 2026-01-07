@@ -46,12 +46,12 @@ export default function RegisterAttendeeForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-      <Input placeholder="Name" {...register("name")} />
+      <Input disabled={mutation.isPending} placeholder="Name" {...register("name")} />
       {errors.name && (
         <p className="text-sm text-red-500">{errors.name.message}</p>
       )}
 
-      <Input placeholder="Email" {...register("email")} />
+      <Input disabled={mutation.isPending} placeholder="Email" {...register("email")} />
       {errors.email && (
         <p className="text-sm text-red-500">{errors.email.message}</p>
       )}

@@ -46,14 +46,14 @@ export default function CreateEventForm () {
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-                <Input placeholder="Event Title" {...register("title")} />
+                <Input disabled={mutation.isPending} placeholder="Event Title" {...register("title")} />
                 { errors.title && (
                     <p className="text-sm text-red-500">{errors.title.message}</p>
                 )}
             </div>
 
             <div>
-                <Textarea placeholder="Description" {...register("description")} />
+                <Textarea disabled={mutation.isPending} placeholder="Description" {...register("description")} />
                 {errors.description && (
                     <p className="text-sm text-red-500">
                         {errors.description.message}
@@ -62,7 +62,7 @@ export default function CreateEventForm () {
             </div>
 
             <div>
-                <Input type="date" {...register("date")} />
+                <Input disabled={mutation.isPending} type="date" {...register("date")} />
                 {errors.date && (
                     <p className="text-sm text-red-500">{errors.date.message}</p>
                 )}
@@ -70,6 +70,7 @@ export default function CreateEventForm () {
 
             <div>
                 <Input
+                    disabled={mutation.isPending}
                     type="number"
                     placeholder="Capacity"
                     {...register("capacity", { valueAsNumber: true })}

@@ -4,6 +4,8 @@ import { use } from "react";
 import RegisterAttendeeForm from "@/components/forms/RegisterAttendeeForm";
 import { fetchEventById } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
+import { EventDetailsSkeleton } from "@/components/ui/loading-skeleton";
+import { ErrorState } from "@/components/ui/error-state";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -17,8 +19,8 @@ export default function EventDetailsPage({params}: PageProps) {
       queryFn: () => fetchEventById(id)
     })
 
-    if (isLoading) return <p>Loading event...</p>;
-    if (isError) return <p>Failed to load event</p>;
+    if (isLoading) return <EventDetailsSkeleton />;
+    if (isError) return <ErrorState message="Event not found" />;
     
 
   return (

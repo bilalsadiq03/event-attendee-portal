@@ -3,6 +3,9 @@
 import EventCard from "@/components/events/EventCard";
 import { fetchEvents } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
+import { EventsSkeleton } from "@/components/ui/loading-skeleton";
+import { EmptyEventsState } from "@/components/ui/empty-state";
+import { ErrorState } from "@/components/ui/error-state";
 
 
 export default function EventsPage() {
@@ -11,10 +14,10 @@ export default function EventsPage() {
     queryFn: fetchEvents
   })
 
-  if (isLoading) return <p>Loading events...</p>;
-  if (isError) return <p>Failed to load events</p>;
+  if (isLoading) return <EventsSkeleton />;
+  if (isError) return <ErrorState message="Failed to load events"/>;
   if (data?.length === 0) {
-    return <p className="text-muted-foreground">No events created yet.</p>;
+    return <EmptyEventsState />;
   }
 
   return (
